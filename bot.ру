@@ -5,7 +5,7 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
 # Токен берётся из переменных окружения
-TOKEN = os.environ.get("TOKEN") or "ВАШ_ТОКЕН_СЮДА"
+TOKEN = os.environ.get(8811449123:AAHb3HGPCChqYffIBKvUgAceIvbZ6pm0WFA) 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message
@@ -48,7 +48,7 @@ async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
     )
 
 def main():
-    app = Application.builder().token(TOKEN).build()
+    app = Application.builder().token(8811449123:AAHb3HGPCChqYffIBKvUgAceIvbZ6pm0WFA).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     app.run_polling()
 
