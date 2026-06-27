@@ -1,0 +1,56 @@
+import asyncio
+from datetime import datetime, timedelta
+import os
+from telegram import Update
+from telegram.ext import Application, MessageHandler, filters, ContextTypes
+
+# Токен берётся из переменных окружения
+TOKEN = os.environ.get("TOKEN") or "ВАШ_ТОКЕН_СЮДА"
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = update.message
+    
+    # Игнорируем сообщения от ботов
+    if msg.from_user.is_bot:
+        return
+    
+    # Сохраняем данные сообщения
+    chat_id = msg.chat_id
+    message_id = msg.message_id
+    text = msg.text or "Сообщение без текста"
+    
+    # Планируем напоминание через 1 час
+    reminder_time = datetime.now() + timedelta(hours=1)
+    
+    # Добавляем задачу в планировщик
+    context.job_queue.run_once(
+        send_reminder,
+        when=reminder_time,
+        context={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": text
+        },
+        name=f"remind_{chat_id}_{message_id}"
+    )
+
+async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
+    data = context.job.context
+    chat_id = data["chat_id"]
+    message_id = data["message_id"]
+    text = data["text"]
+    
+    # Отправляем напоминание с привязкой к исходному сообщению
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=f"⏰ Напоминание через час!\n\nВы писали:\n{text}",
+        reply_to_message_id=message_id
+    )
+
+def main():
+    app = Application.builder().token(TOKEN).build()
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.run_polling()
+
+if name == "__main__":
+    main()
